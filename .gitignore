@@ -30,7 +30,7 @@ bin/
 .vscode/
 
 ### Maven ###
-!**/target/
+/target/
 
 ### Mac OS ###
 .DS_Store
@@ -39,15 +39,15 @@ bin/
 ######### React files
 
 # dependencies
-/node_modules
-/.pnp
-.pnp.js
+/roostify-frontend/node_modules/
+/roostify-frontend/.pnp
+/roostify-frontend/pnp.js
 
 # testing
-/coverage
+/roostify-frontend/coverage
 
 # production
-/build
+/roostify-frontend/build
 
 # misc
 .env.local
