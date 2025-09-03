@@ -7,6 +7,10 @@ A project to create a schedule for work shifts
 
 # Run the application
 
+To build the application
+
+> mvn clean compile
+
 To run the backend application use
 
 > mvn spring-boot:run
