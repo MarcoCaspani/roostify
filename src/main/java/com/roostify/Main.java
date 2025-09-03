@@ -1,9 +1,15 @@
 package com.roostify;
 
 
+import java.util.List;
+import java.util.Map;
+
 public class Main {
     public static void main(String[] args) {
         // simulate creation of roosters
+
+        int year = 2025;
+        int week = 36;
 
         // create employees
         Employee employee1 = new Employee(1, "employee1", 32);
@@ -23,12 +29,21 @@ public class Main {
 
         // Create a schedule
         ScheduleCreator scheduleCreator = new ScheduleCreator();
-        Schedule schedule = scheduleCreator.createSchedule(2025, 36, employees, constraints);
+        Schedule schedule = scheduleCreator.createSchedule(year, week, employees, constraints);
 
         System.out.println("Schedule created");
 
         // Save schedule on Neon database
         SchedulesRepository  schedulesRepository = new SchedulesRepository();
         schedulesRepository.saveSchedule(schedule);
+
+        Map<String, List<Shift>> downloadedSchedule = null;
+        downloadedSchedule = schedulesRepository.getSchedule(year, week);
+        for (String day : downloadedSchedule.keySet()) {
+            System.out.println(day + ":");
+            for (Shift shift : downloadedSchedule.get(day)) {
+                System.out.println("  Shift from " + shift.getStartTime() + " to " + shift.getEndTime() + " assigned to employee ID " + shift.getEmployeeId());
+            }
+        }
     }
 }
