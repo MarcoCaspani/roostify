@@ -1,9 +1,13 @@
 package com.roostify;
 
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 
 import java.util.List;
 import java.util.Map;
 
+@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
 public class Main {
     public static void main(String[] args) {
         // simulate creation of roosters
@@ -45,5 +49,7 @@ public class Main {
                 System.out.println("  Shift from " + shift.getStartTime() + " to " + shift.getEndTime() + " assigned to employee ID " + shift.getEmployeeId());
             }
         }
+
+        SpringApplication.run(Main.class, args);
     }
 }

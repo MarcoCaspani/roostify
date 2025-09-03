@@ -2,6 +2,8 @@
 
 package com.roostify;
 
+import org.springframework.stereotype.Repository;
+
 import java.sql.*;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -9,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Repository
 public class SchedulesRepository {
 
     private static final String DB_URL = "jdbc:postgresql://ep-noisy-haze-a2jsd1gs-pooler.eu-central-1.aws.neon.tech:5432/neondb?sslmode=require&channel_binding=require";
