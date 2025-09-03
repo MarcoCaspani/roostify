@@ -23,7 +23,7 @@ public class Main {
 
         // Create a schedule
         ScheduleCreator scheduleCreator = new ScheduleCreator();
-        Schedule schedule = scheduleCreator.createSchedule(2025, 35, employees, constraints);
+        Schedule schedule = scheduleCreator.createSchedule(2025, 36, employees, constraints);
 
         System.out.println("Schedule created");
 

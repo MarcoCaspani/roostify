@@ -10,6 +10,7 @@ public class ScheduleCreator {
     public ScheduleCreator() {
     }
 
+
     public Schedule createSchedule(int year, int week, Employee[] employees, Constraint[] constraints) {
         Schedule schedule = new Schedule();
         String[] weekDays = getWeekDates(year, week); // 7 days ISO yyyy-MM-dd
@@ -21,11 +22,11 @@ public class ScheduleCreator {
             String day = weekDays[i];
 
             // Create two shifts per day
-            Shift earlyShift = new Shift(day);
+            Shift earlyShift = new Shift(year, week, day);
             earlyShift.startTime = LocalTime.of(9, 30);
             earlyShift.endTime = LocalTime.of(17, 0);
 
-            Shift lateShift = new Shift(day);
+            Shift lateShift = new Shift(year, week, day);
             lateShift.startTime = LocalTime.of(14, 0);
             lateShift.endTime = LocalTime.of(20, 0);
 

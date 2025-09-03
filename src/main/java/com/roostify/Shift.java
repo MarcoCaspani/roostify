@@ -4,15 +4,17 @@ import java.time.LocalTime;
 
 public class Shift {
     String day;
-    String year; //TODO
-    String week; //TODO
+    int year;
+    int week;
     LocalTime startTime;
     LocalTime endTime;
 
     Long employeeId;
 
-    public Shift(String day){
+    public Shift(int year, int week, String day){
         // TODO: generate shift id
+        this.year = year;
+        this.week = week;
         this.day = day;
     }
 
