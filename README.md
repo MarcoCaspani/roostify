@@ -11,7 +11,7 @@ To run the backend application use
 
 > mvn spring-boot:run
 
-# Tech Stack
+# Tech Stack Used
 
 Maven
 
@@ -21,7 +21,9 @@ SpringBoot
 
 Neon Database
 
+React (Typescript)
 
+Postman application (to debug API calls)
 
 # Frontend app
 

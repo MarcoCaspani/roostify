@@ -8,34 +8,13 @@ interface Shift {
 }
 const days: Day[] = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 
-const schedule: Record<Day, Shift[]> = {
-    mon: [
-        { startTime: "09:30", endTime: "17:00", employeeId: 1 },
-        { startTime: "09:30", endTime: "17:00", employeeId: 2 },
-    ],
-    tue: [
-        { startTime: "08:00", endTime: "14:00", employeeId: 3 },
-        { startTime: "14:00", endTime: "20:00", employeeId: 4 },
-    ],
-    wed: [
-        { startTime: "09:00", endTime: "15:00", employeeId: 5 },
-    ],
-    thu: [
-        { startTime: "10:00", endTime: "18:00", employeeId: 6 },
-        { startTime: "12:00", endTime: "20:00", employeeId: 7 },
-    ],
-    fri: [
-        { startTime: "08:00", endTime: "16:00", employeeId: 8 },
-    ],
-    sat: [
-        { startTime: "09:00", endTime: "13:00", employeeId: 9 },
-    ],
-    sun: [
-        { startTime: "10:00", endTime: "14:00", employeeId: 10 },
-    ],
-};
+interface WeeklyScheduleProps {
+    schedule: Record<Day, Shift[]>;
+}
 
-const WeeklySchedule: React.FC = () => {
+const WeeklySchedule: React.FC<WeeklyScheduleProps> = (props)=> {
+    const { schedule } = props;
+
     // @ts-ignore
     return (
         <div className="w-full p-6">
