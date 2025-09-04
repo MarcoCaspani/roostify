@@ -20,7 +20,7 @@ public class SchedulesRepository {
 
     // TODO: check that the schedule does not yet exist in the db, if it does delete the old one
     public void saveSchedule(Schedule schedule) {
-        String sql = "INSERT INTO \"shifts\" (year, week, day, start_time, end_time, employee_id) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO \"shifts\" (year, week, day, start_time, end_time, employee_id, shift_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
         //TODO: check sql string is okay before executing
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
             PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -32,6 +32,7 @@ public class SchedulesRepository {
                 ps.setTime(4, Time.valueOf(shift.getStartTime()));
                 ps.setTime(5, Time.valueOf(shift.getEndTime()));
                 ps.setLong(6, shift.getEmployeeId());
+                ps.setString(7, shift.getShiftId());
                 ps.addBatch();
             }
 
@@ -48,7 +49,7 @@ public class SchedulesRepository {
     Queries the database for the schedule for a particular year and week.
      */
     public Map<String, List<Shift>> getSchedule(int year, int week) {
-        String sql = "SELECT day, start_time, end_time, employee_id FROM shifts WHERE year = ? AND week = ?";
+        String sql = "SELECT day, start_time, end_time, employee_id, shift_id FROM shifts WHERE year = ? AND week = ?";
         Map<String, List<Shift>> schedule = new HashMap<>();
 
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
@@ -63,8 +64,10 @@ public class SchedulesRepository {
                     LocalTime startTime = rs.getTime("start_time").toLocalTime();
                     LocalTime endTime = rs.getTime("end_time").toLocalTime();
                     Long employeeId = rs.getLong("employee_id");
+                    String shiftId = rs.getString("shift_id");
 
                     Shift shift = new Shift(year, week, day);
+                    shift.shiftId = shiftId;
                     shift.startTime = startTime;
                     shift.endTime = endTime;
                     shift.employeeId = employeeId;
@@ -135,5 +138,25 @@ public class SchedulesRepository {
 
         //// 3) Save the new schedule to the database
         saveSchedule(schedule);
+    }
+
+    public void deleteShift(String shiftId) {
+        String sql = "DELETE FROM shifts WHERE shift_id = ?";
+
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, shiftId);
+
+            int rowsAffected = ps.executeUpdate();
+            if (rowsAffected == 0) {
+                System.out.println("⚠️ No shift found with shift ID " + shiftId);
+            } else {
+                System.out.println("✅ Deleted " + rowsAffected + " shift(s) with shift ID " + shiftId);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to delete shift from DB", e);
+        }
     }
 }

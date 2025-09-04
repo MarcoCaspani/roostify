@@ -1,8 +1,10 @@
 package com.roostify;
 
 import java.time.LocalTime;
+import java.util.UUID;
 
 public class Shift {
+    String shiftId;
     String day;
     int year;
     int week;
@@ -13,6 +15,7 @@ public class Shift {
 
     public Shift(int year, int week, String day){
         // TODO: generate shift id
+        this.shiftId = UUID.randomUUID().toString();
         this.year = year;
         this.week = week;
         this.day = day;
@@ -28,6 +31,10 @@ public class Shift {
 
     public LocalTime getEndTime() {
         return endTime;
+    }
+
+    public String getShiftId() {
+        return this.shiftId;
     }
 
     public Long getEmployeeId() {

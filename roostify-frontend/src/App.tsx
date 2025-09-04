@@ -3,12 +3,14 @@ import React, { useState } from "react";
 import './App.css';
 import WeeklySchedule from "./WeeklySchedule";
 import {getCurrentWeekNumber, isScheduleEmpty} from "./utils/utils";
+import {deleteShift} from "./services/api"
 
 // TODO: extract this on a different file
 type Day = "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
 
 // TODO: extract this on a different file
 interface Shift {
+    shiftId: string;
     startTime: string;
     endTime: string;
     employeeId: number;
@@ -40,6 +42,23 @@ function App() {
             setLoading(false);
         }
     }
+
+    // Remove shift handler
+    const handleRemoveShift = async (shiftId: string) => {
+        const confirmDelete = window.confirm("Are you sure you want to remove this shift?");
+        if (!confirmDelete) return;
+
+        try {
+            // Call API to delete shift by ID
+            console.log(`Deleting shift ${shiftId}`);
+            await deleteShift(shiftId); // API call
+
+            await fetchSchedule();      // Refresh schedule after deletion
+        } catch (err) {
+            console.error("Failed to delete shift:", err);
+            alert("Something went wrong while deleting the shift!");
+        }
+    };
 
     const createSchedule = async () => {
         // 1) request the api to create the schedule for the selected year and week using a POST request
@@ -95,9 +114,10 @@ function App() {
 
                 transformed[dayName].push(
                     ...data[date].map((shift) => ({
+                        shiftId: shift.shiftId,
                         startTime: shift.startTime.slice(0, 5), // "09:30"
                         endTime: shift.endTime.slice(0, 5),
-                        employeeId: shift.employeeId,
+                        employeeId: shift.employeeId
                     }))
                 );
             });
@@ -108,6 +128,7 @@ function App() {
             } else {
                 setScheduleEmpty(false);
                 setScheduleData(transformed);
+                console.log(transformed)
             }
         } catch (err: any) {
             setError(err.message || "Something went wrong");
@@ -183,7 +204,10 @@ function App() {
             {error && <p className="text-red-500">{error}</p>}
 
             { scheduleData ? (
-                <WeeklySchedule schedule={scheduleData} />
+                <WeeklySchedule
+                    schedule={scheduleData}
+                    onRemoveShift={handleRemoveShift}
+                />
             ) : (
                 !loading && !error && (
                     <p className="text-gray-500">Select year and week, then click Load Schedule.</p>

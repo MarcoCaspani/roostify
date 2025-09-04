@@ -33,6 +33,7 @@ public class ScheduleController {
         this.repository.deleteSchedule(year, week);
     }
 
+    //// This endpoint automatically creates a schedule for the given year and week
     @PostMapping("/schedules/{year}/{week}")
     public ResponseEntity<Object> createSchedule(
             @PathVariable int year,
@@ -42,4 +43,13 @@ public class ScheduleController {
         // TODO: check if successful and respond with 201 Created if successful
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
+
+    //// This endpoint deletes a specific shift given the shift ID
+    @DeleteMapping("/shifts/{shiftId}")
+    public void deleteShift(
+            @PathVariable String shiftId) {
+        this.repository.deleteShift(shiftId);
+    }
+
+
 }
