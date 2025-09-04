@@ -82,5 +82,58 @@ public class SchedulesRepository {
         return schedule;
     }
 
+    /*
+    A method to delete a schedule for a particular week and year.
+     */
+    public void deleteSchedule(int year, int week) {
+        String sql = "DELETE FROM shifts WHERE year = ? AND week = ?";
 
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, year);
+            ps.setInt(2, week);
+
+            int rowsAffected = ps.executeUpdate();
+            System.out.println("✅ Deleted " + rowsAffected + " shifts for year " + year + ", week " + week);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to delete schedule from DB", e);
+        }
+    }
+
+    public void createSchedule(int year, int week) {
+        System.out.println("Create schedule method called for year " + year + ", week " + week);
+
+        //// 1) To create a schedule we need to retrieve the employees and constraints from the database
+        //// 2) Then we can call the ScheduleCreator to create a new schedule
+        //// 3) Finally we save the new schedule to the database using saveSchedule()
+
+        //// 1) Retrieve employees and constraints from the database
+        // TODO: for now this is hardcoded, later we will fetch from the database
+        // create employees
+        Employee employee1 = new Employee(1, "employee1", 32);
+        employee1.setMaxDays(5);
+        employee1.setNoNightAndMorningShift(true);
+        Employee employee2 = new Employee(2, "employee2", 18);
+        employee2.setMaxDays(3);
+        Employee employee3 = new Employee(3, "employee3", 24);
+        employee3.setMaxDays(4);
+        employee3.setNoNightAndMorningShift(true);
+        Employee[] employees = new  Employee[]{ employee1, employee2, employee3 };
+
+        // generate list of constraints
+        Constraint c1 = new Constraint(employee1.getId(), "MON", ConstraintType.EARLYMANDATORY);
+        Constraint c2 = new Constraint(employee3.getId(), "WED", ConstraintType.NO);
+        Constraint[] constraints = new Constraint[]{c1, c2};
+
+        //// 2) Create a new schedule
+        ScheduleCreator scheduleCreator = new ScheduleCreator();
+        Schedule schedule = scheduleCreator.createSchedule(year, week, employees, constraints);
+        System.out.println("Schedule created for year " + year + ", week " + week);
+
+        //// 3) Save the new schedule to the database
+        saveSchedule(schedule);
+    }
 }

@@ -2,22 +2,16 @@ import React, { useState } from "react";
 
 import './App.css';
 import WeeklySchedule from "./WeeklySchedule";
+import {getCurrentWeekNumber, isScheduleEmpty} from "./utils/utils";
 
+// TODO: extract this on a different file
 type Day = "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
 
+// TODO: extract this on a different file
 interface Shift {
     startTime: string;
     endTime: string;
     employeeId: number;
-}
-
-// Returns the current week number
-function getCurrentWeekNumber(): number {
-    let currentDate = new Date();
-    const dayNum = currentDate.getUTCDay() || 7;
-    currentDate.setUTCDate(currentDate.getUTCDate() + 4 - dayNum);
-    const yearStart = new Date(Date.UTC(currentDate.getUTCFullYear(), 0, 1));
-    return Math.ceil((((currentDate.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
 }
 
 function App() {
@@ -26,6 +20,48 @@ function App() {
     const [scheduleData, setScheduleData] = useState<Record<Day, Shift[]> | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
+    const [scheduleEmpty, setScheduleEmpty] = useState<boolean>(false);
+
+    const deleteSchedule = async () => {
+        // delete the schedule for the selected year and week using a DELETE request
+        setLoading(true);
+        setError(null);
+        try {
+            const res = await fetch(`http://localhost:8080/schedules/${year}/${week}`, {
+                method: 'DELETE',
+            });
+            if (!res.ok) {
+                throw new Error(`Failed to delete schedule: ${res.status}`);
+            }
+            setScheduleData(null);
+        } catch (err: any) {
+            setError(err.message || "Something went wrong");
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const createSchedule = async () => {
+        // 1) request the api to create the schedule for the selected year and week using a POST request
+        setLoading(true);
+        setError(null);
+        try {
+            const res = await fetch(`http://localhost:8080/schedules/${year}/${week}`, {
+                method: 'POST',
+            });
+            if (!res.ok) {
+                throw new Error(`Failed to create schedule: ${res.status}`);
+            }
+            setScheduleData(null);
+        } catch (err: any) {
+            setError(err.message || "Something went wrong");
+        } finally {
+            setLoading(false);
+        }
+
+        // 2: fetch the schedule to update the UI
+        fetchSchedule();
+    }
 
     const fetchSchedule = async () => {
         setLoading(true);
@@ -40,7 +76,7 @@ function App() {
             const data: Record<string, any[]> = await res.json();
 
             // Prepare empty week structure
-            const transformed: Record<Day, Shift[]> = {
+            let transformed: Record<Day, Shift[]> = {
                 mon: [],
                 tue: [],
                 wed: [],
@@ -66,31 +102,19 @@ function App() {
                 );
             });
 
-            console.log("Transformed Schedule:", transformed);
-
-            setScheduleData(transformed);
+            if (isScheduleEmpty(transformed)) {
+                setScheduleEmpty(true);
+                setScheduleData(null);
+            } else {
+                setScheduleEmpty(false);
+                setScheduleData(transformed);
+            }
         } catch (err: any) {
             setError(err.message || "Something went wrong");
             setScheduleData(null);
         } finally {
             setLoading(false);
         }
-
-        /*
-            // Mock data for testing without backend
-            const schedule: Record<Day, Shift[]> = {
-                mon: [{ startTime: "09:30", endTime: "17:00", employeeId: 1 }],
-                tue: [{ startTime: "08:00", endTime: "14:00", employeeId: 2 }],
-                wed: [],
-                thu: [
-                    { startTime: "10:00", endTime: "18:00", employeeId: 6 },
-                    { startTime: "12:00", endTime: "20:00", employeeId: 7 },
-                ],
-                fri: [],
-                sat: [],
-                sun: [],
-            };
-        */
     };
 
     // compute the last 5 years for the dropdown menu
@@ -134,17 +158,43 @@ function App() {
                 >
                     {loading ? "Loading..." : "Load Schedule"}
                 </button>
+
+                { scheduleData ? (
+                    <button
+                        onClick={deleteSchedule}
+                        disabled={loading}
+                        className="mt-6 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition disabled:opacity-50"
+                    >
+                        {loading ? "Loading..." : "Delete Schedule"}
+                    </button>
+                ) : null }
+
+                { scheduleEmpty ? (
+                    <button
+                        onClick={createSchedule}
+                        disabled={loading}
+                        className="mt-6 px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 transition disabled:opacity-50"
+                    >
+                        {loading ? "Creating schedule..." : "Create Schedule"}
+                    </button>
+                ) : null }
             </div>
 
             {error && <p className="text-red-500">{error}</p>}
 
-            {scheduleData ? (
+            { scheduleData ? (
                 <WeeklySchedule schedule={scheduleData} />
             ) : (
                 !loading && !error && (
                     <p className="text-gray-500">Select year and week, then click Load Schedule.</p>
                 )
             )}
+
+            { scheduleEmpty && !loading && !error && (
+                <p className="text-red-400">No schedule available for week {week}. Please generate a schedule.</p>
+            ) }
+
+
         </div>
     );
 }

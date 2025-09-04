@@ -1,4 +1,5 @@
 import React from "react";
+import {isScheduleEmpty} from "./utils/utils";
 
 type Day = "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
 interface Shift {
@@ -9,11 +10,25 @@ interface Shift {
 const days: Day[] = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 
 interface WeeklyScheduleProps {
-    schedule: Record<Day, Shift[]>;
+    schedule: Record<Day, Shift[]> | null;
 }
 
 const WeeklySchedule: React.FC<WeeklyScheduleProps> = (props)=> {
     const { schedule } = props;
+
+    if (isScheduleEmpty(schedule)) {
+        return (
+            <div className="w-full p-6">
+                <h1 className="text-2xl font-bold mb-4 text-gray-800">Weekly Schedule</h1>
+                <p className="text-gray-600">No schedule available. Please generate a schedule.</p>
+            </div>
+        );
+    }
+    if (!schedule) {
+        return (
+            <div />
+        )
+    }
 
     // @ts-ignore
     return (
