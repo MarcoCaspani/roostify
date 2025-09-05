@@ -73,7 +73,10 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
                         <h2 className="text-lg font-semibold text-gray-700 mb-2 capitalize">{day}</h2>
 
                         {/* Existing shifts */}
-                        {schedule[day]?.map((shift: Shift, index: number) => (
+                        {schedule[day]
+                            // Sort shifts by start time
+                            ?.sort((a, b) => a.startTime.localeCompare(b.startTime))
+                            .map((shift: Shift, index: number) => (
                             <div
                                 key={index}
                                 className="w-full bg-blue-100 text-blue-800 rounded-xl p-2 mb-2 text-center"
