@@ -8,12 +8,12 @@ interface AddShiftModal {
 }
 
 const AddShiftModal: React.FC<AddShiftModal> = ({ day, employees, onClose, onConfirm }) => {
-    const [employeeId, setEmployeeId] = useState<number>(employees[0]?.id || 0);
+    const [employeeId, setEmployeeId] = useState<number | "">("");
     const [startTime, setStartTime] = useState<string>("09:00");
     const [endTime, setEndTime] = useState<string>("17:00");
 
     const handleConfirm = () => {
-        onConfirm(employeeId, startTime, endTime);
+        onConfirm(employeeId as number, startTime, endTime);
         onClose();
     };
 
@@ -28,9 +28,15 @@ const AddShiftModal: React.FC<AddShiftModal> = ({ day, employees, onClose, onCon
                     onChange={(e) => setEmployeeId(Number(e.target.value))}
                     className="w-full p-2 border rounded mb-4"
                 >
+                    <option value="" disabled>
+                        Select an employee
+                    </option>
+
                     {Object.values(employees).map(emp => (
                         <option key={emp.id} value={emp.id}>{emp.name}</option>
                     ))}
+
+                    required
                 </select>
 
                 <label className="block mb-2 text-sm font-medium">Start Time</label>
