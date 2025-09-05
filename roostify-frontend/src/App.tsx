@@ -28,6 +28,9 @@ function App() {
     const [employees, setEmployees] = useState<Record<number, { id: number; name: string }>>({});
 
     const deleteSchedule = async () => {
+        const confirmDelete = window.confirm("Are you sure you want to delete this schedule?");
+        if (!confirmDelete) return;
+
         // delete the schedule for the selected year and week using a DELETE request
         setLoading(true);
         setError(null);
