@@ -12,6 +12,7 @@ const days: Day[] = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 
 interface WeeklyScheduleProps {
     schedule: Record<Day, Shift[]> | null;
+    employees?: Record<number, { id: number; name: string }>;
     onAddShift?: (day: Day) => void; //TODO: day should have full day specification 2025-09-03 for instance
     onEditShift?: (shiftId: string) => void;
     onRemoveShift?: (shiftIt: string) => void;
@@ -19,6 +20,7 @@ interface WeeklyScheduleProps {
 
 const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
    schedule,
+   employees,
    onAddShift,
    onEditShift,
    onRemoveShift
@@ -77,7 +79,7 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
                                 className="w-full bg-blue-100 text-blue-800 rounded-xl p-2 mb-2 text-center"
                             >
                                 <span className="block font-medium">
-                                    Employee {shift.employeeId}
+                                    {employees ? (employees[shift.employeeId] ? (`${employees[shift.employeeId]?.name}`) : "No employee assigned" ) : ""}
                                 </span>
                                 <span className="text-xs text-gray-600">
                                     {shift.startTime} - {shift.endTime}

@@ -159,4 +159,61 @@ public class SchedulesRepository {
             throw new RuntimeException("Failed to delete shift from DB", e);
         }
     }
+
+    public Map<Integer, Employee> getEmployees() {
+        String sql = "SELECT id, name, min_hours, max_days, no_night_and_morning_shift FROM employees";
+        Map<Integer, Employee> employees = new HashMap<>();
+
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String employeeName = rs.getString("name");
+                int minHours = rs.getInt("min_hours");
+                int maxDays = rs.getInt("max_days");
+                boolean noNightAndMorningShift = rs.getBoolean("no_night_and_morning_shift");
+
+                Employee employee = new Employee(id, employeeName, minHours);
+                employee.setMaxDays(maxDays);
+                employee.setNoNightAndMorningShift(noNightAndMorningShift);
+
+                employees.put(id, employee);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to fetch employees from DB", e);
+        }
+
+        return employees;
+    }
+
+    public void addShift(int year, int week, String day, Long employeeId, String startTimeStr, String endTimeStr) {
+        String sql = "INSERT INTO shifts (year, week, day, start_time, end_time, employee_id, shift_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String shiftId = java.util.UUID.randomUUID().toString();
+
+        ShiftDateUtil shiftDateUtil = new ShiftDateUtil();
+        String dateStr = shiftDateUtil.getDateFromWeek(year, week, day).toString(); // This is in yyyy-MM-dd format
+
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, year);
+            ps.setInt(2, week);
+            ps.setDate(3, Date.valueOf(dateStr));
+            ps.setTime(4, Time.valueOf(startTimeStr));
+            ps.setTime(5, Time.valueOf(endTimeStr));
+            ps.setLong(6, employeeId);
+            ps.setString(7, shiftId);
+
+            ps.executeUpdate();
+            System.out.println("✅ Shift added successfully with shift ID " + shiftId);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to add shift to DB", e);
+        }
+    }
 }

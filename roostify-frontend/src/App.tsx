@@ -4,6 +4,7 @@ import './App.css';
 import WeeklySchedule from "./WeeklySchedule";
 import {getCurrentWeekNumber, isScheduleEmpty} from "./utils/utils";
 import {deleteShift} from "./services/api"
+import AddShiftModal from "./AddShiftModal";
 
 // TODO: extract this on a different file
 type Day = "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
@@ -23,6 +24,8 @@ function App() {
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const [scheduleEmpty, setScheduleEmpty] = useState<boolean>(false);
+    const [addShiftDayModal, setAddShiftDayModal] = useState<Day | null>(null);
+    const [employees, setEmployees] = useState<Record<number, { id: number; name: string }>>({});
 
     const deleteSchedule = async () => {
         // delete the schedule for the selected year and week using a DELETE request
@@ -43,6 +46,33 @@ function App() {
         }
     }
 
+    // Fetch employees once on component mount
+    React.useEffect(() => {
+        const fetchEmployees = async () => {
+            try {
+                const res = await fetch(`http://localhost:8080/employees`);
+                if (!res.ok) {
+                    throw new Error(`Failed to fetch employees: ${res.status}`);
+                }
+
+                const data = await res.json();
+
+                // Transform into a dictionary with id as key
+                const transformed: Record<number, { id: number; name: string }> = {};
+                Object.values(data).forEach((item: any) => {
+                    transformed[item.id] = { id: item.id, name: item.employeeName };
+                });
+
+                console.log("transformed", transformed);
+                setEmployees(transformed);
+            } catch (err) {
+                console.error(err);
+            }
+        };
+
+        fetchEmployees();
+    }, []);
+
     // Remove shift handler
     const handleRemoveShift = async (shiftId: string) => {
         const confirmDelete = window.confirm("Are you sure you want to remove this shift?");
@@ -57,6 +87,33 @@ function App() {
         } catch (err) {
             console.error("Failed to delete shift:", err);
             alert("Something went wrong while deleting the shift!");
+        }
+    };
+
+    const handleAddShift = (day: Day) => {
+        setAddShiftDayModal(day);
+    };
+
+    const handleConfirmAddShift = async (employeeId: number, startTime: string, endTime: string) => {
+        try {
+            await fetch(`http://localhost:8080/shifts`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    year: Number(year),
+                    week: Number(week),
+                    day: addShiftDayModal, // e.g., "MONDAY"
+                    employeeId: Number(employeeId),
+                    startTime: startTime.includes(":") ? `${startTime}:00` : startTime, // ensure HH:mm:ss
+                    endTime: endTime.includes(":") ? `${endTime}:00` : endTime,
+                }),
+            });
+            fetchSchedule(); // refresh UI
+        } catch (err) {
+            console.error(err);
+            alert("Failed to add shift");
+        } finally {
+            setAddShiftDayModal(null);
         }
     };
 
@@ -128,7 +185,6 @@ function App() {
             } else {
                 setScheduleEmpty(false);
                 setScheduleData(transformed);
-                console.log(transformed)
             }
         } catch (err: any) {
             setError(err.message || "Something went wrong");
@@ -206,7 +262,9 @@ function App() {
             { scheduleData ? (
                 <WeeklySchedule
                     schedule={scheduleData}
+                    employees={employees}
                     onRemoveShift={handleRemoveShift}
+                    onAddShift={handleAddShift}
                 />
             ) : (
                 !loading && !error && (
@@ -218,7 +276,14 @@ function App() {
                 <p className="text-red-400">No schedule available for week {week}. Please generate a schedule.</p>
             ) }
 
-
+            {addShiftDayModal && (
+                <AddShiftModal
+                    day={addShiftDayModal}
+                    employees={employees}
+                    onClose={() => setAddShiftDayModal(null)}
+                    onConfirm={handleConfirmAddShift}
+                />
+            )}
         </div>
     );
 }

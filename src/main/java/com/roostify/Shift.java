@@ -14,7 +14,6 @@ public class Shift {
     Long employeeId;
 
     public Shift(int year, int week, String day){
-        // TODO: generate shift id
         this.shiftId = UUID.randomUUID().toString();
         this.year = year;
         this.week = week;

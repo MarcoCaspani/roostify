@@ -51,5 +51,61 @@ public class ScheduleController {
         this.repository.deleteShift(shiftId);
     }
 
+    //// This endpoint returns the full list of employees
+    @GetMapping("/employees")
+    public Map<Integer, Employee> getEmployees() {
+        return this.repository.getEmployees();
+    }
+
+    //// This endpoint adds a new shift given the shift details in the request body
+    /// body: JSON.stringify({
+    ///                     year,
+    ///                     week,
+    ///                     day: addShiftDayModal, //the selected day of the week
+    ///                     employeeId,
+    ///                     startTime,
+    ///                     endTime,
+    ///                 }),
+
+
+    public static class ShiftRequest {
+        private int year;
+        private int week;
+        private String day;
+        private Long employeeId;
+        private String startTime;
+        private String endTime;
+
+        public int getYear() { return year; }
+
+        public int getWeek() { return week; }
+
+        public String getDay() { return day; }
+
+        public Long getEmployeeId() { return employeeId; }
+
+        public String getStartTime() { return startTime; }
+
+        public String getEndTime() { return endTime; }
+
+    }
+
+    @PostMapping("/shifts")
+    public ResponseEntity<Object> addShift(
+            @RequestBody ShiftRequest shift) {
+        try {
+            repository.addShift(
+                shift.getYear(),
+                shift.getWeek(),
+                shift.getDay(),
+                shift.getEmployeeId(),
+                shift.getStartTime(),
+                shift.getEndTime()
+            );
+            return ResponseEntity.status(HttpStatus.CREATED).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid shift details");
+        }
+    }
 
 }
