@@ -63,7 +63,7 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
                     </label>
                 </div>
             </div>
-
+            <br/>
             <div className="grid grid-cols-7 gap-4">
                 {days.map((day) => (
                     <div
@@ -93,8 +93,9 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
                                     <div className="flex justify-center gap-2 mt-2">
                                         {/* Edit Shift */}
                                         <button
+                                            disabled
                                             onClick={() => onEditShift?.(shift.shiftId)}
-                                            className="bg-orange-400 hover:bg-orange-500 text-white px-2 py-1 rounded-lg text-xs transition"
+                                            className="opacity-50 cursor-not-allowed bg-orange-400 hover:bg-orange-400 text-white px-2 py-1 rounded-lg text-xs transition"
                                         >
                                             Edit
                                         </button>
