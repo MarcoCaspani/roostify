@@ -1,9 +1,14 @@
 package com.roostify;
 
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -105,6 +110,34 @@ public class ScheduleController {
             return ResponseEntity.status(HttpStatus.CREATED).build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid shift details");
+        }
+    }
+
+    @GetMapping("/schedules/{year}/{week}/download")
+    public ResponseEntity<InputStreamResource> downloadScheduleExcel(@PathVariable int year, @PathVariable int week) {
+        try {
+            // Retrieve employees and schedule
+            Map<Integer, Employee> employees = repository.getEmployees();
+            Map<String, List<Shift>> scheduleMap = repository.getSchedule(year, week);
+            Schedule schedule = new Schedule();
+            for (List<Shift> shifts : scheduleMap.values()) {
+                for (Shift shift : shifts) {
+                    schedule.addShift(shift);
+                }
+            }
+            // Generate Excel file in memory
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            ExcelGenerator.generateScheduleExcel(schedule, employees, out, year, week);
+            ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+            String fileName = String.format("rooster year%d week%d.xlsx", year, week);
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Disposition", "attachment; filename=" + fileName);
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                    .body(new InputStreamResource(in));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 

@@ -264,6 +264,8 @@ function App() {
 
             { scheduleData ? (
                 <WeeklySchedule
+                    year = {year}
+                    week = {week}
                     schedule={scheduleData}
                     employees={employees}
                     onRemoveShift={handleRemoveShift}

@@ -11,6 +11,8 @@ interface Shift {
 const days: Day[] = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 
 interface WeeklyScheduleProps {
+    year: number;
+    week: number;
     schedule: Record<Day, Shift[]> | null;
     employees?: Record<number, { id: number; name: string }>;
     onAddShift?: (day: Day) => void; //TODO: day should have full day specification 2025-09-03 for instance
@@ -19,6 +21,8 @@ interface WeeklyScheduleProps {
 }
 
 const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
+   year,
+   week,
    schedule,
    employees,
    onAddShift,
@@ -28,6 +32,8 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
 
     const [selectedDay, setSelectedDay] = useState<Day | null>(null);
     const [editMode, setEditMode] = useState<boolean>(false);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [error, setError] = useState<string | null>(null);
 
     if (isScheduleEmpty(schedule)) {
         return (
@@ -42,6 +48,34 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
             <div />
         )
     }
+
+    // Download Rooster XLSX file
+    const downloadRooster = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const res = await fetch(`http://localhost:8080/schedules/${year}/${week}/download`, {
+                method: 'GET',
+            });
+            if (!res.ok) {
+                throw new Error(`Failed to download rooster: ${res.status}`);
+            }
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            const fileName = `rooster year${year} week${week}.xlsx`;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (err: any) {
+            setError(err.message || "Something went wrong");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     // @ts-ignore
     return (
@@ -62,6 +96,13 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
                         <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-5"></div>
                     </label>
                 </div>
+                <button
+                    className="bg-green-600 text-white px-3 py-1 text-sm rounded-full hover:bg-green-700 transition-all"
+                    onClick={downloadRooster}
+                    disabled={loading}
+                >
+                    {loading ? "Downloading..." : "Download Rooster in .xslx format"}
+                </button>
             </div>
             <br/>
             <div className="grid grid-cols-7 gap-4">
