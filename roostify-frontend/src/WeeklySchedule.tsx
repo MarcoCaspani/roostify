@@ -14,7 +14,7 @@ interface WeeklyScheduleProps {
     year: number;
     week: number;
     schedule: Record<Day, Shift[]> | null;
-    employees?: Record<number, { id: number; name: string }>;
+    employees?: Record<number, { id: number; name: string; minHours: number }>;
     onAddShift?: (day: Day) => void; //TODO: day should have full day specification 2025-09-03 for instance
     onEditShift?: (shiftId: string) => void;
     onRemoveShift?: (shiftIt: string) => void;
@@ -76,6 +76,30 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
             setLoading(false);
         }
     };
+
+    // Helper: Calculate total hours worked for each employee
+    const calculateEmployeeOvertime = () => {
+        if (!schedule || !employees) return {};
+        const overtime: Record<number, number> = {};
+        Object.values(employees).forEach(emp => {
+            let total = 0;
+            days.forEach(day => {
+                schedule[day]?.forEach(shift => {
+                    if (shift.employeeId === emp.id && shift.startTime && shift.endTime) {
+                        // Calculate hours (e.g. 9:30-17:00 = 7.50)
+                        const [startH, startM] = shift.startTime.split(":").map(Number);
+                        const [endH, endM] = shift.endTime.split(":").map(Number);
+                        const start = startH + startM / 60;
+                        const end = endH + endM / 60;
+                        total += end - start;
+                    }
+                });
+            });
+            overtime[emp.id] = parseFloat((total - emp.minHours).toFixed(2));
+        });
+        return overtime;
+    };
+    const overtime = calculateEmployeeOvertime();
 
     // @ts-ignore
     return (
@@ -169,6 +193,54 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
                         )}
                     </div>
                 ))}
+            </div>
+
+            {/* Overtime/Saldo Section */}
+            <div className="mt-8 flex justify-left">
+                <div className="w-auto max-w-xl">
+                    <table className="min-w-full border text-sm">
+                        <thead>
+                            <tr>
+                                <th className="border px-2 py-1 bg-gray-100">PER WEEK</th>
+                                {employees && Object.values(employees).map(emp => (
+                                    <th key={emp.id} className="border px-2 py-1 bg-gray-100">{emp.name}</th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td className="border px-2 py-1">saldo oud</td>
+                                {employees && Object.values(employees).map(emp => (
+                                    <td key={emp.id} className="border px-2 py-1"></td>
+                                ))}
+                            </tr>
+                            <tr>
+                                <td className="border px-2 py-1">uren (+/-)</td>
+                                {employees && Object.values(employees).map(emp => (
+                                    <td key={emp.id} className="border px-2 py-1 font-bold text-blue-700">{overtime[emp.id]}</td>
+                                ))}
+                            </tr>
+                            <tr>
+                                <td className="border px-2 py-1">saldo nieuw</td>
+                                {employees && Object.values(employees).map(emp => (
+                                    <td key={emp.id} className="border px-2 py-1"></td>
+                                ))}
+                            </tr>
+                            <tr>
+                                <td className="border px-2 py-1">uitbetaald</td>
+                                {employees && Object.values(employees).map(emp => (
+                                    <td key={emp.id} className="border px-2 py-1"></td>
+                                ))}
+                            </tr>
+                            <tr>
+                                <td className="border px-2 py-1">ziekte-uren</td>
+                                {employees && Object.values(employees).map(emp => (
+                                    <td key={emp.id} className="border px-2 py-1"></td>
+                                ))}
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     );

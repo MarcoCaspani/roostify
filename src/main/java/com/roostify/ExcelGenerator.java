@@ -118,7 +118,6 @@ public class ExcelGenerator {
         totalRow.createCell(1).setCellValue("totaal");
         colIdx = 2;
         for (int i = 0; i < days.length; i++) {
-            // Sum worked hours for this day
             double dayTotalHours = 0.0;
             String dayIso = getDateStr(year, week, i, true);
             for (Employee emp : employees.values()) {
@@ -129,10 +128,50 @@ public class ExcelGenerator {
             }
             totalRow.createCell(colIdx).setCellValue("totaal");
             colIdx++;
-            totalRow.createCell(colIdx).setCellValue(String.format("%.2f", dayTotalHours)); // space column: sum of worked hours
+            totalRow.createCell(colIdx).setCellValue(String.format("%.2f", dayTotalHours));
             colIdx++;
         }
         totalRow.createCell(headers.size() - 1).setCellValue("80");
+
+        // PER WEEK saldo section header
+        int saldoStartRow = rowNum + 2;
+        Row saldoHeaderRow = sheet.createRow(saldoStartRow);
+        saldoHeaderRow.createCell(0).setCellValue("Per week");
+        int empCol = 1;
+        List<Integer> empOrder = new ArrayList<>(employees.keySet());
+        for (Integer empId : empOrder) {
+            saldoHeaderRow.createCell(empCol).setCellValue(employees.get(empId).getEmployeeName());
+            empCol++;
+        }
+
+        // Calculate total hours worked for each employee
+        Map<Integer, Double> empTotalHours = new HashMap<>();
+        for (Integer empId : empOrder) {
+            double total = 0.0;
+            for (Shift shift : schedule.getShifts()) {
+                if (shift.employeeId != null && shift.employeeId.intValue() == empId && shift.startTime != null && shift.endTime != null) {
+                    total += getPreciseHours(shift);
+                }
+            }
+            empTotalHours.put(empId, total);
+        }
+
+        // Saldo rows
+        String[] saldoLabels = {"saldo oud", "uren (+/-)", "saldo nieuw", "uitbetaald", "ziekte-uren"};
+        for (int i = 0; i < saldoLabels.length; i++) {
+            Row saldoRow = sheet.createRow(saldoStartRow + 1 + i);
+            saldoRow.createCell(0).setCellValue(saldoLabels[i]);
+            empCol = 1;
+            for (Integer empId : empOrder) {
+                if (saldoLabels[i].equals("uren (+/-)")) {
+                    double overtime = empTotalHours.get(empId) - employees.get(empId).getMinHours();
+                    saldoRow.createCell(empCol).setCellValue(String.format("%.2f", overtime));
+                } else {
+                    saldoRow.createCell(empCol).setCellValue("");
+                }
+                empCol++;
+            }
+        }
 
         // Autosize columns
         for (int i = 0; i < headers.size(); i++) {
