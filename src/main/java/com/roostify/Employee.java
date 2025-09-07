@@ -1,6 +1,10 @@
 package com.roostify;
 
 
+/**
+ * Represents an employee with attributes such as ID, name, minimum hours,
+ * maximum days, and shift restrictions.
+ */
 public class Employee {
     int id;
     String employeeName;

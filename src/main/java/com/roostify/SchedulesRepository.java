@@ -11,6 +11,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ This repository handles all database interactions related to schedules, shifts, and employees.
+ It provides methods to save, retrieve, delete schedules and shifts, as well as fetch employee details.
+*/
 @Repository
 public class SchedulesRepository {
 
@@ -45,7 +49,7 @@ public class SchedulesRepository {
         }
     }
 
-    /*
+    /**
     Queries the database for the schedule for a particular year and week.
      */
     public Map<String, List<Shift>> getSchedule(int year, int week) {
@@ -85,7 +89,7 @@ public class SchedulesRepository {
         return schedule;
     }
 
-    /*
+    /**
     A method to delete a schedule for a particular week and year.
      */
     public void deleteSchedule(int year, int week) {
@@ -106,6 +110,12 @@ public class SchedulesRepository {
         }
     }
 
+    /**
+     * Automatically creates a schedule for the given year and week and saves it to the database.
+     *
+     * @param year
+     * @param week
+     */
     public void createSchedule(int year, int week) {
         System.out.println("Create schedule method called for year " + year + ", week " + week);
 
@@ -140,6 +150,11 @@ public class SchedulesRepository {
         saveSchedule(schedule);
     }
 
+    /**
+     * Deletes a specific shift given the shift ID.
+     *
+     * @param shiftId
+     */
     public void deleteShift(String shiftId) {
         String sql = "DELETE FROM shifts WHERE shift_id = ?";
 
@@ -160,6 +175,11 @@ public class SchedulesRepository {
         }
     }
 
+    /**
+     * Fetches the full list of employees from the database.
+     *
+     * @return Map of employee ID to Employee object
+     */
     public Map<Integer, Employee> getEmployees() {
         String sql = "SELECT id, name, min_hours, max_days, no_night_and_morning_shift FROM employees";
         Map<Integer, Employee> employees = new HashMap<>();
@@ -190,6 +210,16 @@ public class SchedulesRepository {
         return employees;
     }
 
+    /**
+     * Adds a new shift to the database.
+     *
+     * @param year
+     * @param week
+     * @param day
+     * @param employeeId
+     * @param startTimeStr in HH:mm:ss format
+     * @param endTimeStr in HH:mm:ss format
+     */
     public void addShift(int year, int week, String day, Long employeeId, String startTimeStr, String endTimeStr) {
         String sql = "INSERT INTO shifts (year, week, day, start_time, end_time, employee_id, shift_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
         String shiftId = java.util.UUID.randomUUID().toString();

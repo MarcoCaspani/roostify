@@ -12,6 +12,10 @@ import java.io.ByteArrayOutputStream;
 import java.util.List;
 import java.util.Map;
 
+/**
+    This controller handles all endpoints related to schedules, shifts, and employees.
+    It interacts with the SchedulesRepository to perform CRUD operations and generate schedules.
+*/
 @RestController
 @CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.DELETE})
 public class ScheduleController {
@@ -61,17 +65,6 @@ public class ScheduleController {
     public Map<Integer, Employee> getEmployees() {
         return this.repository.getEmployees();
     }
-
-    //// This endpoint adds a new shift given the shift details in the request body
-    /// body: JSON.stringify({
-    ///                     year,
-    ///                     week,
-    ///                     day: addShiftDayModal, //the selected day of the week
-    ///                     employeeId,
-    ///                     startTime,
-    ///                     endTime,
-    ///                 }),
-
 
     public static class ShiftRequest {
         private int year;

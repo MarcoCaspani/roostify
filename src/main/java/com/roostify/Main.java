@@ -4,9 +4,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 
-import java.util.List;
-import java.util.Map;
-
+/**
+ * Main class to launch the Spring Boot application.
+ */
 @SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
 public class Main {
     public static void main(String[] args) {

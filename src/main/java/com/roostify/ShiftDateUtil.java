@@ -3,9 +3,20 @@ package com.roostify;
 import java.time.*;
 import java.time.temporal.*;
 
+/**
+ * Utility class for handling date calculations related to shifts and schedules.
+ */
 public class ShiftDateUtil {
 
-    // from e.g. 2025, 36, "mon" return "2025-09-01"
+    /**
+     * Get the LocalDate for a specific year, ISO week number, and day of the week.
+     * from e.g. 2025, 36, "mon" --> return "2025-09-01"
+     *
+     * @param year
+     * @param week
+     * @param day The day parameter should be a three-letter abbreviation (e.g., "mon", "tue").
+     * @return
+     */
     public static LocalDate getDateFromWeek(int year, int week, String day) {
         DayOfWeek dayOfWeek = switch (day.toLowerCase()) {
             case "mon" -> DayOfWeek.MONDAY;

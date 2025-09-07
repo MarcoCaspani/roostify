@@ -3,6 +3,11 @@ package com.roostify;
 import java.time.LocalTime;
 import java.util.UUID;
 
+/**
+ * Represents a work shift with details such as day, time, and assigned employee.
+ * Each shift has a unique identifier.
+ * The shiftId is generated using UUID to ensure uniqueness.
+ */
 public class Shift {
     String shiftId;
     String day;

@@ -33,6 +33,7 @@ bin/
 ### Mac OS ###
 .DS_Store
 
+/roostify
 
 ######### React files
 

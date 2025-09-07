@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 
-import './App.css';
 import WeeklySchedule from "./WeeklySchedule";
 import {getCurrentWeekNumber, isScheduleEmpty} from "./utils/utils";
 import {deleteShift} from "./services/api"

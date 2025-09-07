@@ -5,12 +5,24 @@ import java.time.LocalTime;
 import java.time.temporal.WeekFields;
 import java.util.*;
 
+/**
+ * This class contains the logic to create a schedule based on employees and their constraints.
+ * It uses a simple greedy algorithm to assign shifts while respecting constraints.
+ */
 public class ScheduleCreator {
 
     public ScheduleCreator() {
     }
 
-
+    /**
+     * Create a schedule for the given year and week, assigning employees to shifts based on their constraints.
+     *
+     * @param year        The year for the schedule (e.g., 2023)
+     * @param week        The ISO week number (1-53)
+     * @param employees   Array of employees available for scheduling
+     * @param constraints Array of constraints/preferences for employees
+     * @return A Schedule object containing assigned shifts
+     */
     public Schedule createSchedule(int year, int week, Employee[] employees, Constraint[] constraints) {
         Schedule schedule = new Schedule();
         String[] weekDays = getWeekDates(year, week); // 7 days ISO yyyy-MM-dd
@@ -198,6 +210,14 @@ public class ScheduleCreator {
         return true;
     }
 
+    /**
+     * Get the dates for each day of the specified ISO week in the given year.
+     *
+     * @param year The year (e.g., 2023)
+     * @param week The ISO week number (1-53)
+     * @return An array of strings representing the dates for each day of the week in "yyyy-MM-dd" format
+     * (e.g., ["2023-01-02", "2023-01-03", ..., "2023-01-08"])
+     */
     public String[] getWeekDates(int year, int week) {
         WeekFields weekFields = WeekFields.ISO; // ISO weeks start on Monday
 

@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, NavLink, Navigate } from "react
 import EmployeesManagement from "./EmployeesManagement";
 import ScheduleView from "./ScheduleView";
 
+// Main Application Component
 function App() {
     return (
         <Router>

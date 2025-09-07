@@ -9,6 +9,9 @@ import java.io.OutputStream;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+/**
+ * Utility class to generate Excel files in a customised format for a specific company.
+ */
 public class ExcelGenerator {
     /**
      * Generates an XLSX file in the classic Dutch rooster format.
